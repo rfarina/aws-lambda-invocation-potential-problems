@@ -1,0 +1,8 @@
+{
+    "statusCode": 200,
+    "headers": {
+        "Access-Control-Allow-Methods": "OPTIONS,POST,GET",
+        "Access-Control-Allow-Origin": "*"
+    },
+    "body": "{\"data\":{\"Items\":[{\"transtimestamp\":{\"S\":\"1517078518000\"},\"datetime\":{\"S\":\"1/27/2018 12:41:58 PM\"},\"altitude\":{\"N\":\"269\"},\"mph\":{\"N\":\"4\"},\"orderid\":{\"S\":\"12345\"},\"lon\":{\"S\":\"-98.5214581\"},\"heading\":{\"N\":\"135\"},\"speed\":{\"N\":\"2\"},\"lat\":{\"S\":\"29.5832031\"},\"altitudeaccuracy\":{\"N\":\"0\"},\"accuracy\":{\"N\":\"6\"}}],\"Count\":1,\"ScannedCount\":1,\"LastEvaluatedKey\":{\"transtimestamp\":{\"S\":\"1517078518000\"},\"orderid\":{\"S\":\"12345\"}},\"ConsumedCapacity\":{\"TableName\":\"orders-geodata\",\"CapacityUnits\":0.5}},\"msg\":\"Item successfully retrieved for key: \\\"12345\\\" : \\\"0\\\"\",\"incomingClient\":\"Invoked via the AWS CLI\"}"
+}

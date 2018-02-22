@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Orders-geodata-read</title>
+    <style>
+        button {
+            width: 100px;
+        }
+
+        h3 {
+            color: navy;
+        }
+    </style>
+</head>
+
+<body>
+    <div>
+        <h2>Open browser console, then select button to see results</h2>
+        <h3>
+            <em>Note that the returned payload formats are not the same for both requests</em>
+        </h3>
+        <button onclick="GetItemViaAPI()">Get Item via API</button>
+        <button onclick="GetItemViaSDK()">Get Item via SDK</button>
+    </div>
+
+
+    <!-- JQuery  -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+
+    <!-- AWS JavaScript Browser SDK  -->
+    <script src="https://sdk.amazonaws.com/js/aws-sdk-2.7.18.min.js"></script>
+
+    <!-- Config file with aws credentials for sdk programmatic access  -->
+    <script src="js/config.js"></script>
+
+    <!-- Global variables -->
+    <script>
+        // Set credentials for AWS (from config.js file)
+        let creds = new AWS.Credentials(
+            {
+                accessKeyId: auth.accessKeyId,
+                secretAccessKey: auth.secretAccessKey
+            });
+
+        // Update config for AWS with credentials and region
+        AWS.config.update({
+            credentials: creds,
+            region: auth.region         // defaults to 'us-west-2'
+        });
+
+        // AWS lambda sdk to invoke lambda functions from JavaScript Browser
+        const lambda = new AWS.Lambda();
+
+        // Request Payload to send to API or SDK
+        let payload = {
+            "orderid": "12345",             // valid value is "12345"
+            "transtimestamp": "0"
+        }
+    </script>
+
+    <!-- Get Item via API Gateway -->
+    <script>
+        function GetItemViaAPI() {
+
+            // Let lambda function know which client invoked this request
+            payload.incomingClient = "Invoked via API Gateway";
+            $.ajax({
+                type: "POST",
+                url: " https://dde7i2es4g.execute-api.us-west-2.amazonaws.com/v1/api/orders-geodata-read",
+                data: JSON.stringify(payload),
+                dataType: "json",
+                headers: {
+                    "Content-Type": "application/json"
+                }
+            }).done(function (response, status) {
+                console.clear();
+                console.log('\n Successful results returned from API Gateway request \n');
+                console.log('\n status: \n', status);
+                console.log('\n data: \n', response);
+                let item = response.data.Items[0];
+                let position = {
+                    latitude: Number(item.lat.S),
+                    longitude: Number(item.lon.S)
+                };
+                console.log('\n Geolocation \n', position);
+            }).fail(function (xhr, status, err) {
+                console.clear();
+                console.log('\n Error results returned from API Gateway request \n', err);
+                console.log('\n status: \n', status);
+                console.log('\n Error: \n', err);
+                console.log('\n xhr: \n', xhr);
+                if (xhr.responseJSON.data) console.log('\n xhr.responseJSON.data: \n', xhr.responseJSON.data);
+                if (xhr.responseJSON.data) console.log('\n xhr.responseJSON.data.Items: \n', xhr.responseJSON.data);
+                if (xhr.responseJSON.data && xhr.responseJSON.data.Items) console.log('\n xhr.responseJSON.data.Items: \n', xhr.responseJSON.data);
+                if (xhr.responseJSON.err) console.log('\n xhr.responseJSON.msg: \n', xhr.responseJSON.err);
+                if (xhr.responseJSON.msg) console.log('\n xhr.responseJSON.msg: \n', xhr.responseJSON.msg);
+            });
+
+        }
+
+    </script>
+
+    <!-- Get Item via JavaScript Browser SDK -->
+    <script>
+        /* 
+            This function will directly invoke the lambda function via the SDK, and will *not*
+            use the API GW endpoint
+        */
+        function GetItemViaSDK() {
+
+            // Let lambda function know which client invoked this request
+            payload.incomingClient = "Invoked via Javascript Browser SDK";
+            var params = {
+                FunctionName: "orders-geodata-read",
+                InvocationType: "RequestResponse",
+                Payload: JSON.stringify(payload)
+            };
+            lambda.invoke(params, (err, data) => {
+                console.clear();
+                if (err) {
+                    console.log('\n Error results returned from Javascript Browser SDK request \n', err);
+                    console.log('\n Data object associated with error \n', data);
+                } else {
+                    console.log('\n Successful results returned from Javascript Browser SDK request \n');
+                    console.log('\n data \n', data);
+                    console.log('\n data.Payload \n', JSON.parse(data.Payload));
+                    let payload = JSON.parse(data.Payload);
+                    let body = payload.body;
+                    let bodyData = JSON.parse(body);
+                    console.log('\n bodyData \n', bodyData);
+                    if (bodyData.Items) {
+                        let items = bodyData.data.Items;
+                        console.log('\n Items \n', items);
+                        if (bodyData.data.Count !== 0) {
+                            let item = items[0];
+                            console.log('\n item \n', item);
+                            let position = {
+                                latitude: Number(item.lat.S),
+                                longitude: Number(item.lon.S)
+                            };
+                            console.log('\n Geolocation \n', position);
+                        }
+                    }
+
+
+                    /*                  // An alternative syntax to extract the payload
+                                        let testPayload = JSON.parse(data.Payload);
+                                        let testBody =  JSON.parse( JSON.parse(data.Payload).body);
+                                        let testItems = JSON.parse( JSON.parse(data.Payload).body).data.Items;
+                                        console.log('\n testBody: \n', testBody);
+                                        console.log('\n testBody.data: \n', testBody.data);
+                                        console.log('\n testItems: \n', testItems);
+                     */
+                }
+            })
+        }
+
+
+    </script>
+
+
+</body>
+
+</html>

@@ -1,0 +1,6 @@
+aws lambda invoke                      \
+--function-name orders-geodata-read    \
+--invocation-type 'RequestResponse'    \
+--payload file://payload.json          \
+result.json
+ 
