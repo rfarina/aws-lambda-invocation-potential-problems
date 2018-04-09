@@ -87,6 +87,16 @@
                     longitude: Number(item.lon.S)
                 };
                 console.log('\n Geolocation \n', position);
+
+                let startingMsRemaining = response.startingMsRemaining;
+                let endingMsRemaining = response.endingMsRemaining;
+                let executionMs = startingMsRemaining - endingMsRemaining;
+                let billable = {
+                    startingMsRemaining,
+                    endingMsRemaining,
+                    executionMs
+                }
+                console.log('\n Billable \n', billable);
             }).fail(function (xhr, status, err) {
                 console.clear();
                 console.log('\n Error results returned from API Gateway request \n', err);
@@ -132,7 +142,7 @@
                     let body = payload.body;
                     let bodyData = JSON.parse(body);
                     console.log('\n bodyData \n', bodyData);
-                    if (bodyData.Items) {
+                    if (bodyData.data.Items) {
                         let items = bodyData.data.Items;
                         console.log('\n Items \n', items);
                         if (bodyData.data.Count !== 0) {
@@ -144,6 +154,17 @@
                             };
                             console.log('\n Geolocation \n', position);
                         }
+
+                        let startingMsRemaining = bodyData.startingMsRemaining;
+                        let endingMsRemaining = bodyData.endingMsRemaining;
+                        let executionMs = startingMsRemaining - endingMsRemaining;
+                        let billable = {
+                            startingMsRemaining,
+                            endingMsRemaining,
+                            executionMs
+                        }
+                        console.log('\n Billable \n', billable);
+
                     }
 
 
